@@ -1,0 +1,12 @@
+{
+  "name": "freshbutchers",
+  "version": "1.0.0",
+  "description": "Shopify app integrating FreshButchers.com with SuiteFleet (Transcorp Logistics). Runs on any shared hosting with PHP 7.4+ and MySQL.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

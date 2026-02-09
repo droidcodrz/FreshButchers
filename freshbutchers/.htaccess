@@ -1,0 +1,119 @@
+# FreshButchers SuiteFleet - Apache Configuration
+# Security rules, clean URLs, and PHP settings
+
+# ═══════════════════════════════════════
+# SECURITY: Deny access to sensitive files and directories
+# ═══════════════════════════════════════
+
+# Block access to config.php directly
+<Files "config.php">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</Files>
+
+# Block access to includes directory
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Deny access to includes/ directory
+    RewriteRule ^includes/ - [F,L]
+
+    # Deny access to logs/ directory
+    RewriteRule ^logs/ - [F,L]
+
+    # Deny access to hidden files (e.g., .env, .git)
+    RewriteRule (^|/)\.(?!htaccess) - [F,L]
+</IfModule>
+
+# Block access to log files directly
+<FilesMatch "\.(log|sql|bak|old|orig|swp)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# ═══════════════════════════════════════
+# CLEAN URLs (optional)
+# ═══════════════════════════════════════
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /php/
+
+    # If the request is for an existing file or directory, serve it directly
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+</IfModule>
+
+# ═══════════════════════════════════════
+# PHP SETTINGS
+# ═══════════════════════════════════════
+
+<IfModule mod_php.c>
+    # Error handling
+    php_flag display_errors Off
+    php_flag log_errors On
+    php_value error_log logs/error.log
+
+    # Security
+    php_flag expose_php Off
+    php_flag allow_url_fopen On
+    php_flag allow_url_include Off
+
+    # Session security
+    php_flag session.cookie_httponly On
+    php_flag session.cookie_secure On
+    php_value session.cookie_samesite Lax
+
+    # Upload limits (webhooks can have large payloads)
+    php_value post_max_size 10M
+    php_value upload_max_filesize 10M
+
+    # Execution limits
+    php_value max_execution_time 120
+    php_value max_input_time 60
+</IfModule>
+
+# ═══════════════════════════════════════
+# SECURITY HEADERS
+# ═══════════════════════════════════════
+
+<IfModule mod_headers.c>
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+
+    # XSS Protection
+    Header set X-XSS-Protection "1; mode=block"
+
+    # Clickjacking protection (allow Shopify to embed via iframe)
+    # Note: Shopify embedded apps need to allow framing from Shopify admin
+    Header set Content-Security-Policy "frame-ancestors https://*.myshopify.com https://admin.shopify.com"
+
+    # Referrer policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ═══════════════════════════════════════
+# COMPRESSION
+# ═══════════════════════════════════════
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css application/json application/javascript
+</IfModule>
+
+# ═══════════════════════════════════════
+# DIRECTORY LISTING
+# ═══════════════════════════════════════
+
+# Disable directory listing
+Options -Indexes

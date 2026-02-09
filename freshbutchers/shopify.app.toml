@@ -1,0 +1,13 @@
+client_id = "7778db4f85a0358a891afeaaefceb35e"
+name = "FreshButchers SuiteFleet"
+application_url = "https://song-unmet-maurine.ngrok-free.dev/freshbutchers/index.php"
+embedded = true
+
+[access_scopes]
+scopes = "read_orders,write_orders,read_fulfillments,write_fulfillments,read_shipping,write_shipping"
+
+[auth]
+redirect_urls = ["https://song-unmet-maurine.ngrok-free.dev/freshbutchers/auth/callback.php"]
+
+[webhooks]
+api_version = "2025-04"
